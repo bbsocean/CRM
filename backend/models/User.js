@@ -5,9 +5,12 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['Admin', 'Franchise', 'Agent', 'Vendor'], default: 'Agent' },
-  createdAt: { type: Date, default: Date.now }
-});
+  role: { type: String, enum: ['Admin', 'Franchise', 'Agent', 'Vendor', 'CustomerVendor'], default: 'Agent' },
+  createdAt: { type: Date, default: Date.now },
+  refreshToken: { type: String },  // Store refresh token securely
+}, { timestamps: true });
+
+
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
@@ -20,5 +23,5 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.comparePassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };
-
+ 
 module.exports = mongoose.model('User', userSchema);

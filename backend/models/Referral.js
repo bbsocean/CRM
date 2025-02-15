@@ -9,3 +9,15 @@ const referralSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Referral', referralSchema);
+
+// To be verified and updated , if nesscceary 
+// const mongoose = require("mongoose");
+
+// const ReferralSchema = new mongoose.Schema({
+//   name: { type: String, required: true },
+//   type: { type: String, enum: ["Customer", "Vendor", "Agent"], required: true },
+//   commission: { type: Number, default: 0 },
+//   status: { type: String, enum: ["Pending", "Completed"], default: "Pending" },
+// });
+
+// module.exports = mongoose.model("Referral", ReferralSchema);
