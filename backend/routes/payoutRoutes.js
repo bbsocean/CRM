@@ -2,9 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Transaction = require('../models/Transaction');
 const Commission = require('../models/Commission');
-const { createPayout } = require('../controllers/payoutController');
+const { createPayout, processPayout } = require('../controllers/payoutController');
 const { verifyToken, authorizeRoles } = require('../middleware/authMiddleware');
-const { processPayout } = require('../controllers/payoutController');
 const Payout = require("../models/Payout");
 const router = express.Router();
 

@@ -5,7 +5,7 @@ const User = require('../models/User');
 const express = require("express");
 const router = express.Router();
 const Payout = require("../models/Payout");
-const { verifyToken, isAdmin } = require("../middlewares/authMiddleware");
+const { verifyToken, isAdmin } = require("../middleware/authMiddleware");
 const { processPayouts } = require("../utils/payoutUtils");
 
 exports.createSale = async (req, res) => {
