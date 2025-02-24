@@ -7,6 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'), // Alias '@' for src folder
+// 'jwt-decode': '/node_modules/jwt-decode/build/jwt-decode.esm.js'
     },
   },
 });

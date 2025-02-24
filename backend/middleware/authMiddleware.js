@@ -68,3 +68,24 @@ exports.csrfProtection = (req, res, next) => {
   }
   next();
 };
+
+// ✅ Tagged Middleware (Generalized Middleware with Role Support)
+exports.authMiddleware = (roles = []) => {
+  return (req, res, next) => {
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Check if user has the required roles
+      if (roles.length && !roles.includes(decoded.role)) {
+        return res.status(403).json({ message: 'Access denied. Insufficient permissions.' });
+      }
+
+      // Assign decoded user info to request
+      req.user = decoded;
+      next();
+    } catch (error) {
+      res.status(401).json({ message: 'Unauthorized. Please log in again.', error });
+    }
+  };
+};

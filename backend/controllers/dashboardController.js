@@ -362,6 +362,7 @@ const User = require('../models/User');
 const Payout = require('../models/Payout');
 const { getStartDate } = require('../utils/dateHelpers');
 const Reward = require('../models/Reward');
+
 // -------------------- Admin Dashboard --------------------
 exports.getAdminOverview = async (req, res) => {
   try {
@@ -397,18 +398,39 @@ exports.getAdminOverview = async (req, res) => {
 exports.getAgentDashboard = async (req, res) => {
   try {
     const { agentId } = req.params;
-    const totalSales = await Sale.aggregate([{ $match: { agentId } }, { $group: { _id: null, total: { $sum: '$saleAmount' } } }]);
-    const commissions = await Commission.find({ recipientId: agentId });
-    const totalCommissions = commissions.reduce((sum, commission) => sum + commission.commissionAmount, 0);
+    const mongoose = require('mongoose');
+    const objectIdAgentId = mongoose.Types.ObjectId(agentId);
+
+    // ✅ Fetch total sales for the agent
+    const totalSales = await Sale.aggregate([
+      { $match: { agentId: objectIdAgentId } },
+      { $group: { _id: null, total: { $sum: '$saleAmount' } } }
+    ]);
+
+    // ✅ Fetch total commissions for the agent
+    const commissions = await Commission.aggregate([
+      { $match: { recipientId: objectIdAgentId } },
+      { $group: { _id: null, totalCommissions: { $sum: '$commissionAmount' } } }
+    ]);
+
+    // ✅ Fetch sales history for the agent (most recent 5 sales)
+    const salesHistory = await Sale.find({ agentId: objectIdAgentId })
+      .sort({ saleDate: -1 })
+      .limit(5)
+      .select('productName saleAmount saleDate');
 
     res.status(200).json({
       totalSales: totalSales[0]?.total || 0,
-      totalCommissions
+      totalCommissions: commissions[0]?.totalCommissions || 0,
+      salesHistory
     });
+
   } catch (error) {
+    console.error('Error fetching agent dashboard:', error);
     res.status(500).json({ message: 'Error fetching agent dashboard', error });
   }
 };
+
 
 // -------------------- Franchise Dashboard --------------------
 exports.getFranchiseDashboard = async (req, res) => {
@@ -503,7 +525,9 @@ exports.getReferralDashboard = async (req, res) => {
   try {
     const { userId } = req.params;
     const referralBonuses = await Referral.aggregate([{ $match: { referrerId: userId } }, { $group: { _id: null, totalBonus: { $sum: '$bonusAmount' } } }]);
-    const referredUsers = await User.find({ referredBy: userId });
+    
+    // Fetch users referred by this referrer 
+    const referredUsers = await User.find({ referredBy: userId }).select('name email role');
 
     res.status(200).json({
       totalReferralBonus: referralBonuses[0]?.totalBonus || 0,

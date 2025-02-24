@@ -10,75 +10,82 @@ const AgentDashboard = () => {
     pendingCommissions: 0,
     salesHistory: [],
     commissions: [],
-    topProducts: [],
+    topPerformance: [],
   });
 
+  const [loading, setLoading] = useState(true); // For loading state 
+  const [error, setError] = useState(null); // For error handling
+
+  // Fetch dashboard data from the backend API
   useEffect(() => {
-    axiosInstance.get(`/dashboard/agent/${agentId}`)
-      .then(response => setDashboardData(response.data))
-      .catch(error => console.error('Error fetching agent dashboard:', error));
+    const fetchAgentDashboard = async () => {
+      try {
+        const response = await axiosInstance.get(`/dashboard/agent/${agentId}`);
+        setDashboardData(response.data);  // Set the API response to state
+      } catch (error) {
+        setError('Error fetching dashboard data'); 
+       } finally{ 
+          setLoading(false); // End loading state
+        console.error('Error fetching agent dashboard:', error);
+
+      }
+    };
+
+    fetchAgentDashboard();
   }, [agentId]);
+
+  if (loading) return <div>Loading...</div>; 
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="agent-dashboard-container">
       <h1>Agent Dashboard</h1>
-      <div className="dashboard-metrics">
-        <p><strong>Total Sales:</strong> ₹{dashboardData.totalSales.toLocaleString()}</p>
-        <p><strong>Total Commissions:</strong> ₹{dashboardData.totalCommissions.toLocaleString()}</p>
-        <p><strong>Pending Commissions:</strong> ₹{dashboardData.pendingCommissions.toLocaleString()}</p>
-      </div>
 
-      <h2>Top Products Sold</h2>
-      <ul>
-        {dashboardData.topProducts.length > 0 ? (
-          dashboardData.topProducts.map((product, index) => (
-            <li key={index}>
-              {product.productName} - {product.totalUnitsSold} units
-            </li>
-          ))
-        ) : (
-          <p>No product sales data available.</p>
-        )}
-      </ul>
+      <div className="dashboard-overview">
+        <p><strong>Total Sales:</strong> {dashboardData.totalSales}</p>
+        <p><strong>Total Commissions:</strong> {dashboardData.totalCommissions}</p>
+        <p><strong>Pending Commissions:</strong> {dashboardData.pendingCommissions}</p>
+      </div>
 
       <h2>Sales History</h2>
       <ul>
         {dashboardData.salesHistory.map((sale, index) => (
           <li key={index}>
-            Product: <strong>{sale.productName}</strong>, Amount: ₹{sale.saleAmount}, Date: {new Date(sale.saleDate).toLocaleDateString()}
+            Product: {sale.productName}, Amount: {sale.saleAmount}, Date: {new Date(sale.saleDate).toLocaleDateString()}
           </li>
         ))}
       </ul>
 
-      <h2>Commission Details</h2>
+      <h2>Top Products</h2>
       <ul>
-        {dashboardData.commissions.length > 0 ? (
-          dashboardData.commissions.map((commission, index) => (
-            <li key={index}>
-              Amount: ₹{commission.amount}, Status: {commission.status}, Date: {new Date(commission.date).toLocaleDateString()}
-            </li>
-          ))
-        ) : (
-          <p>No commission data available.</p>
-        )}
+        {dashboardData.topProducts.map((product, index) => (
+          <li key={index}>
+            {product.productName}: {product.saleAmount} sales
+          </li>
+        ))}
+      </ul>
+
+      <h2>Top Performances (Daily, Weekly, Monthly)</h2>
+      <ul>
+        {dashboardData.topPerformance.map((performance, index) => (
+          <li key={index}>
+            Date: {new Date(performance.date).toLocaleDateString()} - Sales: {performance.sales}
+          </li>
+        ))}
       </ul>
 
       <style>
         {`
           .agent-dashboard-container {
             max-width: 800px;
-            margin: 0 auto;
+            margin: 20px auto;
             padding: 20px;
-            background-color: #f4f4f4;
-            border-radius: 8px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
           }
 
-          .dashboard-metrics {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            background-color: #ffffff;
+          .dashboard-overview {
             margin-bottom: 20px;
           }
 
@@ -88,11 +95,16 @@ const AgentDashboard = () => {
           }
 
           ul {
-            padding-left: 20px;
+            list-style-type: none;
+            padding: 0;
           }
 
-          ul li {
-            margin-bottom: 8px;
+          li {
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            border-radius: 5px;
           }
         `}
       </style>

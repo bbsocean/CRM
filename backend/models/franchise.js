@@ -18,6 +18,9 @@ const franchiseSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  region: { type: String, required: true },
+  vendors: [{ type: mongoose.Schema.Types.ObjectId, ref: "Vendor" }],
+  earnings: { type: Number, default: 0 },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Franchise', franchiseSchema);

@@ -23,7 +23,11 @@ const commissionSchema = new mongoose.Schema({
   status: { type: String, enum: ['Pending', 'Paid'], default: 'Pending' },
   
   createdAt: { type: Date, default: Date.now },
-  payoutDate: { type: Date }
+  payoutDate: { type: Date },
+
+  amount: { type: Number, required: true },
+  type: { type: String, enum: ["Sales", "Referral", "Vendor Commission"], required: true },
+  hierarchyLevel: { type: String, required: true }
 });
 
 module.exports = mongoose.model('Commission', commissionSchema);
