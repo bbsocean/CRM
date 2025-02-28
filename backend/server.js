@@ -95,7 +95,7 @@ const errorHandler = require('./middleware/errorHandler'); // Import the middlew
 const aiInsightsRoutes = require("./routes/aiInsightsRoutes");
 const gamificationRoutes = require("./routes/gamificationRoutes");
 const performanceRoutes = require("./routes/performanceRoutes");
-const payoutRoutes = require("./routes/payoutRoutes");
+//const payoutRoutes = require("./routes/payoutRoutes");
 const userRoutes = require("./routes/userRoutes");
 const marketplaceRoutes = require("./routes/marketplaceRoutes");
 const selfServiceRoutes = require("./routes/selfServiceRoutes");
@@ -221,7 +221,7 @@ app.use(errorHandler);  // Add the error-handling middleware at the end
 app.use("/api/ai-insights", aiInsightsRoutes);
 app.use("/api/gamification", gamificationRoutes);
 app.use("/api/performance", performanceRoutes);
-app.use("/api/payouts", payoutRoutes);
+//app.use("/api/payouts", payoutRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/marketplace", marketplaceRoutes);
 app.use("/api/self-service", selfServiceRoutes);

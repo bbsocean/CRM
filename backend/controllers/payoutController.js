@@ -162,39 +162,39 @@ router.get("/history", verifyToken, async (req, res) => {
 });
 
 // ✅ Admin: Get All Payout Requests
-router.get("/all", verifyToken, isAdmin, async (req, res) => {
-  try {
-    const payouts = await Payout.find().populate("userId", "name email").sort({ createdAt: -1 });
+// router.get("/all", verifyToken, isAdmin, async (req, res) => {
+//   try {
+//     const payouts = await Payout.find().populate("userId", "name email").sort({ createdAt: -1 });
 
-    res.json({ success: true, data: payouts });
-  } catch (error) {
-    console.error("Fetch All Payout Requests Error:", error);
-    res.status(500).json({ message: "Error fetching payout requests." });
-  }
-});
+//     res.json({ success: true, data: payouts });
+//   } catch (error) {
+//     console.error("Fetch All Payout Requests Error:", error);
+//     res.status(500).json({ message: "Error fetching payout requests." });
+//   }
+// });
 
 // ✅ Admin: Approve/Reject Payout
-router.put("/update/:id", verifyToken, isAdmin, async (req, res) => {
-  try {
-    const { status } = req.body;
+// router.put("/update/:id", verifyToken, isAdmin, async (req, res) => {
+//   try {
+//     const { status } = req.body;
 
-    if (!["approved", "rejected", "paid"].includes(status)) {
-      return res.status(400).json({ message: "Invalid status update." });
-    }
+//     if (!["approved", "rejected", "paid"].includes(status)) {
+//       return res.status(400).json({ message: "Invalid status update." });
+//     }
 
-    const payout = await Payout.findById(req.params.id);
+//     const payout = await Payout.findById(req.params.id);
 
-    if (!payout) return res.status(404).json({ message: "Payout request not found" });
+//     if (!payout) return res.status(404).json({ message: "Payout request not found" });
 
-    payout.status = status;
-    await payout.save();
+//     payout.status = status;
+//     await payout.save();
 
-    res.json({ success: true, message: `Payout request marked as ${status}.` });
-  } catch (error) {
-    console.error("Payout Status Update Error:", error);
-    res.status(500).json({ message: "Error updating payout status." });
-  }
-});
+//     res.json({ success: true, message: `Payout request marked as ${status}.` });
+//   } catch (error) {
+//     console.error("Payout Status Update Error:", error);
+//     res.status(500).json({ message: "Error updating payout status." });
+//   }
+// });
 
 // ✅ Approve Payout (Admin Action)
 router.put("/approve/:id", verifyToken, isAdmin, async (req, res) => {
@@ -224,3 +224,18 @@ router.post("/process", verifyToken, isAdmin, async (req, res) => {
 });
 
 module.exports = router;
+
+
+
+// ✅ Ensure this function exists
+const getPayouts = async (req, res) => {
+  try {
+    const payouts = await Payout.find().sort({ date: -1 });
+    res.json(payouts);
+  } catch (error) {
+    console.error("Error fetching payouts:", error);
+    res.status(500).json({ message: "Error retrieving payouts" });
+  }
+};
+
+module.exports = { getPayouts };
