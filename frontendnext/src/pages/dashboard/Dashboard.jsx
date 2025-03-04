@@ -22,12 +22,24 @@ import "../../assets/styles/animations.css";
 const Dashboard = () => {
   const navigate = useNavigate();
 
+
+const fetchDashboardData = async () => {
+    try {
+        const statsResponse = await axios.get("/api/dashboard/stats");
+        setStats(statsResponse.data);
+    } catch (error) {
+        console.error("Error fetching dashboard data", error);
+    }
+};
+
+
   useEffect(() => {
     if (!isAuthenticated()) {
       navigate("/auth/login"); 
     }
   }, [navigate]);  // ✅ Fix: Add `navigate` as a dependency
   
+
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-gray-800">
@@ -92,3 +104,15 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+
+
+
+const fetchDashboardData = async () => {
+  try {
+      const statsResponse = await axios.get("/api/dashboard/stats");
+      setStats(statsResponse.data);
+  } catch (error) {
+      console.error("Error fetching dashboard data", error);
+  }
+};
