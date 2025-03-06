@@ -1,41 +1,50 @@
-// backend/routes/agentRoutes.js
+import dbConnect from "../../../utils/dbConnect";
+import Vendor from "../../../models/Vendor";
+import Commission from "../../../models/Commission";
+import { getAllAgents, getAgentById, createAgent, updateAgent, deleteAgent } from "../../../controllers/agentController";
 
-const express = require('express');
-const { 
-  getAllAgents, 
-  getAgentById, 
-  createAgent, 
-  updateAgent, 
-  deleteAgent 
-} = require('../controllers/agentController');
+export default async function handler(req, res) {
+  await dbConnect(); // Ensure Database Connection
 
-const router = express.Router();
+  const { method, query } = req;
 
-const Vendor = require("../models/Vendor");
-
-// ✅ Fetch Vendors for Agent Marketplace
-router.get("/agent/vendors", async (req, res) => {
-  try {
-    const vendors = await Vendor.find();
-    res.json(vendors);
-  } catch (error) {
-    console.error("Error fetching vendors:", error);
-    res.status(500).json({ message: "Error retrieving vendors" });
+  if (method === "GET" && query.type === "vendors") {
+    try {
+      const vendors = await Vendor.find();
+      return res.status(200).json(vendors);
+    } catch (error) {
+      return res.status(500).json({ message: "Error retrieving vendors", error });
+    }
   }
-});
-// GET all agents
-router.get('/', getAllAgents);
 
-// GET a specific agent by ID
-router.get('/:id', getAgentById);
+  if (method === "GET" && query.type === "commissions") {
+    try {
+      const commissions = await Commission.find();
+      return res.status(200).json(commissions);
+    } catch (error) {
+      return res.status(500).json({ message: "Server Error", error });
+    }
+  }
 
-// POST a new agent
-router.post('/', createAgent);
-
-// PUT to update an existing agent
-router.put('/:id', updateAgent);
-
-// DELETE an agent
-router.delete('/:id', deleteAgent);
-
-module.exports = router;
+  switch (method) {
+    case "GET":
+      if (query.id) {
+        await getAgentById(req, res);
+      } else {
+        await getAllAgents(req, res);
+      }
+      break;
+    case "POST":
+      await createAgent(req, res);
+      break;
+    case "PUT":
+      await updateAgent(req, res);
+      break;
+    case "DELETE":
+      await deleteAgent(req, res);
+      break;
+    default:
+      res.status(405).json({ message: "Method Not Allowed" });
+      break;
+  }
+}

@@ -1,10 +1,11 @@
 import { connectToDatabase } from "../../lib/mongodb";
 import { ObjectId } from "mongodb";
-const express = require('express');
-const router = express.Router();
+import dbConnect from "../../../utils/dbConnect";
+import Commission from "../../../models/Commission";
 
 router.get('/overview', async (req, res) => {
   const { db } = await connectToDatabase();
+  await dbConnect(); // Ensure Database Connection
   try {
     const { startDate, endDate, agentId, productName, commissionStatus } = req.query;
 
@@ -46,12 +47,15 @@ router.get('/overview', async (req, res) => {
       { $limit: 5 }
     ]).toArray();
 
+    const commissions = await Commission.find();
+
     res.status(200).json({
       totalSales: totalSales[0]?.total || 0,
       totalCommissions,
       pendingCommissions,
       totalPayouts: totalPayouts[0]?.total || 0,
-      topAgents
+      topAgents,
+      commissions
     });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching admin overview', error });

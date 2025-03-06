@@ -1,27 +1,28 @@
-const express = require("express");
-const router = express.Router();
-const AgentTransactions = require("../models/AgentTransactions");
+import dbConnect from "../../../utils/dbConnect";
+import AgentTransactions from "../../../models/AgentTransactions";
 
-// ✅ Fetch Agent Transactions
-router.get("/agent-transactions", async (req, res) => {
-  try {
-    const transactions = await AgentTransactions.find();
-    res.json(transactions);
-  } catch (error) {
-    console.error("Error fetching agent transactions:", error);
-    res.status(500).json({ message: "Error retrieving transactions" });
+export default async function handler(req, res) {
+  await dbConnect(); // Ensure Database Connection
+
+  const { method, query } = req;
+
+  if (method === "GET" && query.type === "agent-transactions") {
+    try {
+      const transactions = await AgentTransactions.find();
+      return res.status(200).json(transactions);
+    } catch (error) {
+      return res.status(500).json({ message: "Error retrieving transactions", error });
+    }
   }
-});
 
-// ✅ Request Payout
-router.post("/agent-request-payout", async (req, res) => {
-  try {
-    // Logic to process payout request (e.g., update payout status in DB)
-    res.status(200).json({ message: "Payout request submitted successfully" });
-  } catch (error) {
-    console.error("Error processing payout request:", error);
-    res.status(500).json({ message: "Error processing payout request" });
+  if (method === "POST" && query.type === "agent-request-payout") {
+    try {
+      // Logic to process payout request (e.g., update payout status in DB)
+      return res.status(200).json({ message: "Payout request submitted successfully" });
+    } catch (error) {
+      return res.status(500).json({ message: "Error processing payout request", error });
+    }
   }
-});
 
-module.exports = router;
+  return res.status(405).json({ message: "Method Not Allowed" });
+}
